@@ -18,7 +18,7 @@
 
     .contenedor-botones {
       position: absolute;
-      bottom: 15vh; /* usa altura relativa al dispositivo */
+      bottom: 15vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -49,11 +49,10 @@
       transform: scale(1.03);
     }
 
-    /* 📱 Vista para móviles */
     @media (max-width: 600px) {
       body {
         background-position: center top;
-        background-attachment: scroll; /* mejora el rendimiento móvil */
+        background-attachment: scroll;
       }
 
       .contenedor-botones {
@@ -73,6 +72,7 @@
   <div class="contenedor-botones">
     <a class="btn" href="SAURIOS_MENU_ADULTOS.pdf" target="_blank">Menú de Adultos</a>
     <a class="btn" href="SAURIOS_MENU_NINOS.pdf" target="_blank">Menú de Niños</a>
+    <a class="btn" href="SAURIOS_MENU_VERANO.pdf" target="_blank">Menú de Verano</a>
   </div>
 </body>
 </html>
