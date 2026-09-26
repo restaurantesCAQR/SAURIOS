@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú - SAURIOS</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1a1a1a;
+      font-family: Arial, sans-serif;
+      color: #d4af37;
+    }
+    .barra {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.9);
+      border-bottom: 2px solid #d4af37;
+    }
+    .barra a {
+      color: #d4af37;
+      text-decoration: none;
+      font-weight: bold;
+      border: 2px solid #d4af37;
+      border-radius: 8px;
+      padding: 6px 14px;
+    }
+    #paginas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+    canvas {
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      background: #fff;
+    }
+    #estado {
+      text-align: center;
+      padding: 40px 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="barra">
+    <a href="index.html">← Volver</a>
+  </div>
+  <div id="estado">Cargando menú...</div>
+  <div id="paginas"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    // Solo se permiten estos archivos
+    const MENUS = {
+      adultos:   "SAURIOS_MENU_ADULTOS.pdf",
+      ninos:     "SAURIOS_MENU_NINOS.pdf",
+      desayunos: "SAURIOS_MENU_DESAYUNOS.pdf",
+      tipico:    "MENU-TIPICO.pdf"
+    };
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const estado = document.getElementById("estado");
+    const contenedor = document.getElementById("paginas");
+    const menu = new URLSearchParams(location.search).get("menu");
+    const archivo = MENUS[menu];
+
+    async function cargar() {
+      if (!archivo) {
+        estado.textContent = "Menú no encontrado.";
+        return;
+      }
+      try {
+        const pdf = await pdfjsLib.getDocument(archivo).promise;
+        estado.remove();
+        const ratio = window.devicePixelRatio || 1;
+
+        for (let n = 1; n <= pdf.numPages; n++) {
+          const pagina = await pdf.getPage(n);
+          const anchoDestino = Math.min(contenedor.clientWidth - 24, 900);
+          const base = pagina.getViewport({ scale: 1 });
+          const escala = (anchoDestino / base.width) * ratio;
+          const viewport = pagina.getViewport({ scale: escala });
+
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          contenedor.appendChild(canvas);
+
+          await pagina.render({
+            canvasContext: canvas.getContext("2d"),
+            viewport
+          }).promise;
+        }
+      } catch (e) {
+        estado.textContent = "No se pudo cargar el menú.";
+        console.error(e);
+      }
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
